@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPTVoiceSorter", "PPTVoiceSorter\PPTVoiceSorter.csproj", "{337CC24B-5A4A-415F-BF6F-8221E826244F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{337CC24B-5A4A-415F-BF6F-8221E826244F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337CC24B-5A4A-415F-BF6F-8221E826244F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337CC24B-5A4A-415F-BF6F-8221E826244F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337CC24B-5A4A-415F-BF6F-8221E826244F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1DD4F95-B5F4-4545-B10F-4AFBED4A0D7C}
+	EndGlobalSection
+EndGlobal
