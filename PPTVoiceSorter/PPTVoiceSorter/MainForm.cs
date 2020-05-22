@@ -17,6 +17,12 @@ namespace PPTVoiceSorter
         public MainForm()
         {
             InitializeComponent();
+
+            worker = new BackgroundWorker();
+            worker.WorkerReportsProgress = true;
+            worker.DoWork += Worker_DoWork;
+            worker.ProgressChanged += Worker_ProgressChanged;
+            worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
         }
 
         #region Event handlers
@@ -74,7 +80,7 @@ namespace PPTVoiceSorter
 
         public static void OpenBrowser(string url)
         {
-            // Process.Start doesn't work on .NET Core.
+            // Process.Start doesn't work as expected on .NET Core.
             // https://github.com/dotnet/runtime/issues/17938
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -101,7 +107,62 @@ namespace PPTVoiceSorter
 
         private void startButton_Click(object sender, EventArgs e)
         {
+            if (worker.IsBusy) return;
+            startButton.Enabled = false;
+            worker.RunWorkerAsync();
+        }
+        #endregion
 
+        #region Sorting process
+        private BackgroundWorker worker;
+        private string gameFolder;
+        private string unxwbPath;
+        private string mtxToJsonPath;
+        private string destinationFolder;
+
+        private class Progress
+        {
+            public int itemsComplete;
+            public int itemsTotal;
+            public string message;
+        }
+
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            for (int i = 0; i < 1357; i++)
+            {
+                Progress progress = new Progress()
+                {
+                    itemsComplete = i,
+                    itemsTotal = 1357,
+                    message = $"Processing item {i + 1} of 1357..."
+                };
+                worker.ReportProgress(0, progress);
+                System.Threading.Thread.Sleep(10);
+            }
+        }
+
+        private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            Progress progress = e.UserState as Progress;
+            progressBar.Value = progress.itemsComplete;
+            progressBar.Maximum = progress.itemsTotal;
+            progressLabel.Text = progress.message;
+        }
+
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                progressLabel.Text = "Export failed with error: " + e.Error;
+            }
+            else
+            {
+                progressLabel.Text = "Done.";
+                // TODO: Open destination folder
+            }
+            progressBar.Value = 0;
+            startButton.Enabled = true;
         }
         #endregion
     }
