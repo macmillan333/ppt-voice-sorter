@@ -72,6 +72,7 @@
             this.gameFolderBrowseButton.TabIndex = 2;
             this.gameFolderBrowseButton.Text = "Browse...";
             this.gameFolderBrowseButton.UseVisualStyleBackColor = true;
+            this.gameFolderBrowseButton.Click += new System.EventHandler(this.gameFolderBrowseButton_Click);
             // 
             // label2
             // 
@@ -97,6 +98,7 @@
             this.unxwbBrowseButton.TabIndex = 5;
             this.unxwbBrowseButton.Text = "Browse...";
             this.unxwbBrowseButton.UseVisualStyleBackColor = true;
+            this.unxwbBrowseButton.Click += new System.EventHandler(this.unxwbBrowseButton_Click);
             // 
             // unxwbDownloadLink
             // 
@@ -107,6 +109,7 @@
             this.unxwbDownloadLink.TabIndex = 3;
             this.unxwbDownloadLink.TabStop = true;
             this.unxwbDownloadLink.Text = "Download it here.";
+            this.unxwbDownloadLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.unxwbDownloadLink_LinkClicked);
             // 
             // mtxToJsonDownloadLink
             // 
@@ -117,6 +120,7 @@
             this.mtxToJsonDownloadLink.TabIndex = 6;
             this.mtxToJsonDownloadLink.TabStop = true;
             this.mtxToJsonDownloadLink.Text = "Download it here.";
+            this.mtxToJsonDownloadLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.mtxToJsonDownloadLink_LinkClicked);
             // 
             // mtxToJsonBrowseButton
             // 
@@ -126,6 +130,7 @@
             this.mtxToJsonBrowseButton.TabIndex = 8;
             this.mtxToJsonBrowseButton.Text = "Browse...";
             this.mtxToJsonBrowseButton.UseVisualStyleBackColor = true;
+            this.mtxToJsonBrowseButton.Click += new System.EventHandler(this.mtxToJsonBrowseButton_Click);
             // 
             // mtxToJsonBox
             // 
@@ -148,9 +153,9 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(13, 173);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(214, 20);
+            this.label4.Size = new System.Drawing.Size(426, 20);
             this.label4.TabIndex = 0;
-            this.label4.Text = "4. Store sorted voice clips here.";
+            this.label4.Text = "4. Pick destination folder. Sorted voice clips will be stored here.";
             // 
             // destinationFolderBox
             // 
@@ -167,6 +172,7 @@
             this.destinationFolderBrowseButton.TabIndex = 10;
             this.destinationFolderBrowseButton.Text = "Browse...";
             this.destinationFolderBrowseButton.UseVisualStyleBackColor = true;
+            this.destinationFolderBrowseButton.Click += new System.EventHandler(this.destinationFolderBrowseButton_Click);
             // 
             // startButton
             // 
@@ -176,6 +182,7 @@
             this.startButton.TabIndex = 11;
             this.startButton.Text = "Start";
             this.startButton.UseVisualStyleBackColor = true;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
             // 
             // progressBar1
             // 
