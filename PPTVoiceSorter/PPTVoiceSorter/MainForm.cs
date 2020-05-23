@@ -144,6 +144,12 @@ namespace PPTVoiceSorter
             public List<List<string>> Entries { get; set; }
         }
 
+        private class Speaker
+        {
+            public List<string> clipPaths = new List<string>();
+            public List<string> lines = new List<string>();
+        }
+
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
             // Adventure mode's sound banks are located at:
@@ -292,7 +298,32 @@ namespace PPTVoiceSorter
             }
 
             // Step 4: Load speaker list.
-            string speakerJson = Properties.Resources.speakers;
+            List<string> nameList = System.Text.Json.JsonSerializer.Deserialize<List<string>>(
+                Properties.Resources.names);
+            Dictionary<string, Speaker> speakers = new Dictionary<string, Speaker>();
+            for (int i = 0; i < nameList.Count; i++)
+            {
+                string name = nameList[i];
+                if (!speakers.ContainsKey(name))
+                {
+                    speakers.Add(name, new Speaker());
+                }
+                Speaker speaker = speakers[name];
+
+                speaker.clipPaths.Add(clipPaths[i]);
+                speaker.lines.Add(lines[i]);
+            }
+
+            // Step 5: Sort clips and export transcripts.
+            for (int i = 0; i < speakers.Count; i++)
+            {
+                string name = speakers.ElementAt(i).Key;
+                Speaker speaker = speakers.ElementAt(i).Value;
+
+                progress.itemsComplete = totalClips + 1 + i;
+                progress.message = $"Writing clips and transcript for {name} ({i + 1}/{speakers.Count})...";
+                worker.ReportProgress(0, progress);
+            }
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -331,15 +362,20 @@ namespace PPTVoiceSorter
                 // Preprocess lines to remove "\n" and "{arrow}".
                 for (int i = 0; i < scene.Count; i++)
                 {
-                    scene[i] = Preprocess(scene[i]);
+                    scene[i] = PreProcess(scene[i]);
                 }
             }
             return t;
         }
 
-        private string Preprocess(string line)
+        private string PreProcess(string line)
         {
             return line.Replace("\n", " ").Replace("  ", " ").Replace("{arrow}", "");
+        }
+
+        private string PostProcess(string line)
+        {
+            return line;
         }
         #endregion
     }

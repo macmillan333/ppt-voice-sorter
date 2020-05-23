@@ -99,9 +99,9 @@ namespace PPTVoiceSorter.Properties {
         ///    &quot;Ringo&quot;,
         ///    &quot;Ringo [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string speakers {
+        internal static string names {
             get {
-                return ResourceManager.GetString("speakers", resourceCulture);
+                return ResourceManager.GetString("names", resourceCulture);
             }
         }
     }
