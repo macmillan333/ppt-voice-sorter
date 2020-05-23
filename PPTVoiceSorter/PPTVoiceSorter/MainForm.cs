@@ -194,6 +194,12 @@ namespace PPTVoiceSorter
 
                 progress.itemsComplete += Directory.GetFiles(outDir).Length;
             }
+            // Due to what I assume is the developers' oversight, destinationFolder\manzai_070101_e
+            // contains 40 files when that scene only has 39 lines. The extra file, 39.wav,
+            // is unused, and its content is the same as destinationFolder\manzai_070102_e\0.wav.
+            //
+            // Thanks to this file, right now destinationFolder contains 3084 files, while
+            // the transcrips only contain 3083 lines.
 
             // Step 2: Extract transcripts.
             List<string> mtxPartialBasenames = new List<string>();
@@ -228,6 +234,9 @@ namespace PPTVoiceSorter
                     throw new Exception("An error occurred when running MtxToJson.", ex);
                 }
             }
+
+            // Step 3: Load speaker list from resources.
+            string speakerJson = Properties.Resources.speakers;
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
