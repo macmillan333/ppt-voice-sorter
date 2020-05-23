@@ -323,7 +323,26 @@ namespace PPTVoiceSorter
                 progress.itemsComplete = totalClips + 1 + i;
                 progress.message = $"Writing clips and transcript for {name} ({i + 1}/{speakers.Count})...";
                 worker.ReportProgress(0, progress);
+
+                string outFolder = destinationFolder + $@"\{name}";
+                Directory.CreateDirectory(outFolder);
+
+                StringBuilder transcript = new StringBuilder();
+                for (int line = 0; line < speaker.lines.Count; line++)
+                {
+                    string basename = (line + 1).ToString("D9");
+                    string outClipPath = outFolder + $@"\{basename}.wav";
+                    File.Move(speaker.clipPaths[line], outClipPath);
+
+                    string processedLine = PostProcess(speaker.lines[line]);
+                    transcript.AppendLine($"{basename}\t{processedLine}");
+                }
+
+                string transcriptPath = outFolder + @"\transcript.txt";
+                File.WriteAllText(transcriptPath, transcript.ToString());
             }
+
+            // Step 6: Clean up.
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
