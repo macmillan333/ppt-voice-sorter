@@ -132,7 +132,7 @@ namespace PPTVoiceSorter
         private const int totalSpeakers = 34;
         private const int totalActionItems = totalClips + totalTranscriptFiles + totalSpeakers;
 
-        private class Progress
+        private struct Progress
         {
             public int itemsComplete;
             public string message;
@@ -164,15 +164,14 @@ namespace PPTVoiceSorter
                 throw new Exception("An error occurred when looking for XWB files in the game folder.", ex);
             }
 
-            int clipsExtracted = 0;
+            Progress progress = new Progress()
+            {
+                itemsComplete = 0
+            };
             foreach (string path in xwbFiles)
             {
                 string[] splits = path.Split('\\');
-                Progress progress = new Progress()
-                {
-                    itemsComplete = clipsExtracted,
-                    message = $"Extracting voice clips from {splits[^1]} ({clipsExtracted} / {totalClips})..."
-                };
+                progress.message = $"Extracting voice clips from {splits[^1]} ({progress.itemsComplete} / {totalClips})...";
                 worker.ReportProgress(0, progress);
 
                 string basename = splits[^1].Split('.')[0];
@@ -193,13 +192,47 @@ namespace PPTVoiceSorter
                 }
                 p.WaitForExit();
 
-                clipsExtracted += Directory.GetFiles(outDir).Length;
+                progress.itemsComplete += Directory.GetFiles(outDir).Length;
+            }
+
+            // Step 2: Extract transcripts.
+            List<string> mtxPartialBasenames = new List<string>();
+            for (int i = 1; i <= 10; i++)
+            {
+                mtxPartialBasenames.Add($"chapter{i:D2}");
+            }
+            mtxPartialBasenames.Add("general");
+
+            int transcriptsExtracted = 0;
+            foreach (string mtxPartialBasename in mtxPartialBasenames)
+            {
+                string basename = mtxPartialBasename + "English";
+
+                progress.itemsComplete = totalClips + transcriptsExtracted;
+                progress.message = $"Extracting transcript from {basename}.mtx ({transcriptsExtracted} / {totalTranscriptFiles})...";
+                worker.ReportProgress(0, progress);
+
+                string inPath = gameFolder + $@"\data_steam\data\tenp\text\adventure\{basename}.mtx";
+                string outPath = destinationFolder + $@"\{basename}.json";
+
+                Process p = new Process();
+                p.StartInfo.FileName = mtxToJsonPath;
+                p.StartInfo.Arguments = $@"-o ""{outPath}"" ""{inPath}""";
+                p.StartInfo.CreateNoWindow = true;
+                try
+                {
+                    p.Start();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred when running MtxToJson.", ex);
+                }
             }
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            Progress progress = e.UserState as Progress;
+            Progress progress = (Progress)e.UserState;
             progressBar.Value = progress.itemsComplete;
             progressBar.Maximum = totalActionItems;
             progressLabel.Text = progress.message;
