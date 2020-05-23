@@ -129,7 +129,10 @@ namespace PPTVoiceSorter
 
         private const int totalClips = 3084;
         private const int totalSpeakers = 34;
-        private const int totalActionItems = totalClips + 1 + totalSpeakers;
+        private const int totalActionItems = totalClips
+            + 1  // For extracting transcripts
+            + totalSpeakers 
+            + 1;  // For cleaning up
 
         private struct Progress
         {
@@ -154,16 +157,11 @@ namespace PPTVoiceSorter
         {
             // Adventure mode's sound banks are located at:
             // PuyoPuyoTetris\data_stream\data\sound\manzai\manzai_xxyyzz_e.xwb
-            // xxyyzz can be 6 digits, "opening" or "ending".
+            // xxyyzz can be 6 digits, or "opening", or "ending".
             //
             // Transcripts are located at:
             // PuyoPuyoTetris\data_steam\data\tenp\text\adventure\chapterxxEnglish.mtx
             //                                                   \generalEnglish.mtx
-            //
-            // Action items:
-            // * Extract voice clips (3,084)
-            // * Extract transcript (1)
-            // * Sort clips and transcript (34)
 
             // Step 1: Extract voice clips. Also collect extracted file names in order.
             List<string> xwbPaths = new List<string>();
@@ -343,6 +341,18 @@ namespace PPTVoiceSorter
             }
 
             // Step 6: Clean up.
+            progress.itemsComplete = totalActionItems - 1;
+            progress.message = "Cleaning up...";
+            worker.ReportProgress(0, progress);
+
+            foreach (string folder in Directory.GetDirectories(destinationFolder, "manzai*"))
+            {
+                Directory.Delete(folder, recursive: true);
+            }
+            foreach (string path in Directory.GetFiles(destinationFolder, "*.json"))
+            {
+                File.Delete(path);
+            }
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
