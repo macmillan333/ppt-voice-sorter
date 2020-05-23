@@ -19,6 +19,11 @@ namespace PPTVoiceSorter
         {
             InitializeComponent();
 
+            optimizeForTrainingToolTip.SetToolTip(optimizeForTrainingCheckBox,
+                "Adjust the output to be more friendly to speech synthesizers.\n" +
+                "* Any line containing sound effects, such as *thinking sounds*, will be removed.\n" +
+                "* Spelling of some names will be adjusted to be less ambiguous, such as Amitie --> Amitee.\n");
+
             worker = new BackgroundWorker();
             worker.WorkerReportsProgress = true;
             worker.DoWork += Worker_DoWork;
@@ -116,6 +121,7 @@ namespace PPTVoiceSorter
             unxwbPath = unxwbBox.Text;
             mtxToJsonPath = mtxToJsonBox.Text;
             destinationFolder = destinationFolderBox.Text;
+            optimizeForTraining = optimizeForTrainingCheckBox.Checked;
             worker.RunWorkerAsync();
         }
         #endregion
@@ -126,6 +132,7 @@ namespace PPTVoiceSorter
         private string unxwbPath;
         private string mtxToJsonPath;
         private string destinationFolder;
+        private bool optimizeForTraining;
 
         private const int totalClips = 3084;
         private const int totalSpeakers = 34;
@@ -328,6 +335,11 @@ namespace PPTVoiceSorter
                 StringBuilder transcript = new StringBuilder();
                 for (int line = 0; line < speaker.lines.Count; line++)
                 {
+                    if (optimizeForTraining && ContainsSoundEffects(speaker.lines[line]))
+                    {
+                        continue;
+                    }
+
                     string basename = (line + 1).ToString("D9");
                     string outClipPath = outFolder + $@"\{basename}.wav";
                     File.Move(speaker.clipPaths[line], outClipPath);
@@ -402,9 +414,32 @@ namespace PPTVoiceSorter
             return line.Replace("\n", " ").Replace("  ", " ").Replace("{arrow}", "");
         }
 
+        private bool ContainsSoundEffects(string line)
+        {
+            return line.Contains('*');
+        }
+
         private string PostProcess(string line)
         {
-            return line;
+            if (optimizeForTraining)
+            {
+                return line.Replace("Amitie", "Amitee")
+                .Replace("Ecolo", "Ehcolo")
+                .Replace("Klug", "Kloog")
+                .Replace("Rulue", "Rooloo")
+                .Replace("Maguro", "Mahguro")
+                .Replace("Raffina", "Raffeena")
+                .Replace("Schezo", "Shezo")
+                .Replace("Suketoudara", "Sukehtohdara")
+                .Replace("Ai", "I")
+                .Replace("Lidelle", "Leedelle")
+                .Replace("Rei", "Ray")
+                .Replace("Tetrimino", "Tetremiino");
+            }
+            else
+            {
+                return line;
+            }
         }
         #endregion
     }

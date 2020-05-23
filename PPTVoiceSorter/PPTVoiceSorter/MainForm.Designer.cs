@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.gameFolderBox = new System.Windows.Forms.TextBox();
             this.gameFolderBrowseButton = new System.Windows.Forms.Button();
@@ -45,6 +46,9 @@
             this.startButton = new System.Windows.Forms.Button();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.progressLabel = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.optimizeForTrainingCheckBox = new System.Windows.Forms.CheckBox();
+            this.optimizeForTrainingToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // label1
@@ -176,7 +180,7 @@
             // 
             // startButton
             // 
-            this.startButton.Location = new System.Drawing.Point(13, 279);
+            this.startButton.Location = new System.Drawing.Point(13, 341);
             this.startButton.Name = "startButton";
             this.startButton.Size = new System.Drawing.Size(94, 29);
             this.startButton.TabIndex = 11;
@@ -186,7 +190,7 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(113, 279);
+            this.progressBar.Location = new System.Drawing.Point(113, 341);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(417, 29);
             this.progressBar.TabIndex = 5;
@@ -194,16 +198,43 @@
             // progressLabel
             // 
             this.progressLabel.AutoSize = true;
-            this.progressLabel.Location = new System.Drawing.Point(113, 315);
+            this.progressLabel.Location = new System.Drawing.Point(113, 377);
             this.progressLabel.Name = "progressLabel";
             this.progressLabel.Size = new System.Drawing.Size(0, 20);
             this.progressLabel.TabIndex = 6;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(13, 227);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(260, 20);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "Options (mouse over for explanation):";
+            // 
+            // optimizeForTrainingCheckBox
+            // 
+            this.optimizeForTrainingCheckBox.AutoSize = true;
+            this.optimizeForTrainingCheckBox.Location = new System.Drawing.Point(30, 250);
+            this.optimizeForTrainingCheckBox.Name = "optimizeForTrainingCheckBox";
+            this.optimizeForTrainingCheckBox.Size = new System.Drawing.Size(296, 24);
+            this.optimizeForTrainingCheckBox.TabIndex = 12;
+            this.optimizeForTrainingCheckBox.Text = "Optimize for speech synthesizer training";
+            this.optimizeForTrainingCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // optimizeForTrainingToolTip
+            // 
+            this.optimizeForTrainingToolTip.AutoPopDelay = 20000;
+            this.optimizeForTrainingToolTip.InitialDelay = 500;
+            this.optimizeForTrainingToolTip.ReshowDelay = 100;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(641, 355);
+            this.ClientSize = new System.Drawing.Size(641, 441);
+            this.Controls.Add(this.optimizeForTrainingCheckBox);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.progressLabel);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.startButton);
@@ -221,6 +252,7 @@
             this.Controls.Add(this.gameFolderBrowseButton);
             this.Controls.Add(this.gameFolderBox);
             this.Controls.Add(this.label1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
             this.Text = "PPT Voice Sorter";
             this.ResumeLayout(false);
@@ -247,6 +279,9 @@
         private System.Windows.Forms.Button startButton;
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Label progressLabel;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.CheckBox optimizeForTrainingCheckBox;
+        private System.Windows.Forms.ToolTip optimizeForTrainingToolTip;
     }
 }
 
