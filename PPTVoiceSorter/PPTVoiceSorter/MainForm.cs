@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -108,7 +109,13 @@ namespace PPTVoiceSorter
         private void startButton_Click(object sender, EventArgs e)
         {
             if (worker.IsBusy) return;
+
             startButton.Enabled = false;
+
+            gameFolder = gameFolderBox.Text;
+            unxwbPath = unxwbBox.Text;
+            mtxToJsonPath = mtxToJsonBox.Text;
+            destinationFolder = destinationFolderBox.Text;
             worker.RunWorkerAsync();
         }
         #endregion
@@ -120,25 +127,73 @@ namespace PPTVoiceSorter
         private string mtxToJsonPath;
         private string destinationFolder;
 
+        private const int totalClips = 3084;
+        private const int totalTranscriptFiles = 11;
+        private const int totalSpeakers = 34;
+        private const int totalActionItems = totalClips + totalTranscriptFiles + totalSpeakers;
+
         private class Progress
         {
             public int itemsComplete;
-            public int itemsTotal;
             public string message;
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            for (int i = 0; i < 1357; i++)
+            // Adventure mode's sound banks are located at:
+            // PuyoPuyoTetris\data_stream\data\sound\manzai\manzai_xxyyzz_e.xwb
+            // xxyyzz can be 6 digits, "opening" or "ending".
+            //
+            // Transcripts are located at:
+            // PuyoPuyoTetris\data_steam\data\tenp\text\adventure\chapterxxEnglish.mtx
+            //                                                   \generalEnglish.mtx
+            //
+            // Action items:
+            // * Extract voice clips (3,084)
+            // * Extract transcript (11)
+            // * Sort clips and transcript (34)
+
+            // Step 1: Extract voice clips.
+            string[] xwbFiles;
+            try
             {
+                xwbFiles = Directory.GetFiles(gameFolder + @"\data_steam\data\sound\manzai", "manzai_*_e.xwb");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred when looking for XWB files in the game folder.", ex);
+            }
+
+            int clipsExtracted = 0;
+            foreach (string path in xwbFiles)
+            {
+                string[] splits = path.Split('\\');
                 Progress progress = new Progress()
                 {
-                    itemsComplete = i,
-                    itemsTotal = 1357,
-                    message = $"Processing item {i + 1} of 1357..."
+                    itemsComplete = clipsExtracted,
+                    message = $"Extracting voice clips from {splits[^1]} ({clipsExtracted} / {totalClips})..."
                 };
                 worker.ReportProgress(0, progress);
-                System.Threading.Thread.Sleep(10);
+
+                string basename = splits[^1].Split('.')[0];
+                string outDir = destinationFolder + $@"\{basename}";
+                Directory.CreateDirectory(outDir);
+
+                Process p = new Process();
+                p.StartInfo.FileName = unxwbPath;
+                p.StartInfo.Arguments = $@"-D -d ""{outDir}"" ""{path}""";
+                p.StartInfo.CreateNoWindow = true;
+                try
+                {
+                    p.Start();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("An error occurred when running unxwb.", ex);
+                }
+                p.WaitForExit();
+
+                clipsExtracted += Directory.GetFiles(outDir).Length;
             }
         }
 
@@ -146,7 +201,7 @@ namespace PPTVoiceSorter
         {
             Progress progress = e.UserState as Progress;
             progressBar.Value = progress.itemsComplete;
-            progressBar.Maximum = progress.itemsTotal;
+            progressBar.Maximum = totalActionItems;
             progressLabel.Text = progress.message;
         }
 
@@ -154,7 +209,8 @@ namespace PPTVoiceSorter
         {
             if (e.Error != null)
             {
-                progressLabel.Text = "Export failed with error: " + e.Error;
+                MessageBox.Show(e.Error.ToString());
+                progressLabel.Text = "Failed.";
             }
             else
             {
