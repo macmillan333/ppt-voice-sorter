@@ -128,14 +128,20 @@ namespace PPTVoiceSorter
         private string destinationFolder;
 
         private const int totalClips = 3084;
-        private const int totalTranscriptFiles = 11;
         private const int totalSpeakers = 34;
-        private const int totalActionItems = totalClips + totalTranscriptFiles + totalSpeakers;
+        private const int totalActionItems = totalClips + 1 + totalSpeakers;
 
         private struct Progress
         {
             public int itemsComplete;
             public string message;
+        }
+
+        // For deserializing JSON extracted from game.
+        private class Transcript
+        {
+            public bool Has64BitOffsets { get; set; }
+            public List<List<string>> Entries { get; set; }
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
@@ -150,14 +156,27 @@ namespace PPTVoiceSorter
             //
             // Action items:
             // * Extract voice clips (3,084)
-            // * Extract transcript (11)
+            // * Extract transcript (1)
             // * Sort clips and transcript (34)
 
-            // Step 1: Extract voice clips.
-            string[] xwbFiles;
+            // Step 1: Extract voice clips. Also collect extracted file names in order.
+            List<string> xwbPaths = new List<string>();
+            List<string> clipPaths = new List<string>();
             try
             {
-                xwbFiles = Directory.GetFiles(gameFolder + @"\data_steam\data\sound\manzai", "manzai_*_e.xwb");
+                // Collect xwbFiles in a very specific order: opening, acts 1~7, ending, acts 8~10.
+                string xwbFolder = gameFolder + @"\data_steam\data\sound\manzai";
+
+                xwbPaths.Add(xwbFolder + @"\manzai_opening_e.xwb");
+                for (int act = 1; act <= 7; act++)
+                {
+                    xwbPaths.AddRange(Directory.GetFiles(xwbFolder, $"manzai_{act:D2}????_e.xwb"));
+                }
+                xwbPaths.Add(xwbFolder + @"\manzai_ending_e.xwb");
+                for (int act = 8; act <= 10; act++)
+                {
+                    xwbPaths.AddRange(Directory.GetFiles(xwbFolder, $"manzai_{act:D2}????_e.xwb"));
+                }
             }
             catch (Exception ex)
             {
@@ -168,19 +187,19 @@ namespace PPTVoiceSorter
             {
                 itemsComplete = 0
             };
-            foreach (string path in xwbFiles)
+            foreach (string path in xwbPaths)
             {
                 string[] splits = path.Split('\\');
                 progress.message = $"Extracting voice clips from {splits[^1]} ({progress.itemsComplete} / {totalClips})...";
                 worker.ReportProgress(0, progress);
 
                 string basename = splits[^1].Split('.')[0];
-                string outDir = destinationFolder + $@"\{basename}";
-                Directory.CreateDirectory(outDir);
+                string outFolder = destinationFolder + $@"\{basename}";
+                Directory.CreateDirectory(outFolder);
 
                 Process p = new Process();
                 p.StartInfo.FileName = unxwbPath;
-                p.StartInfo.Arguments = $@"-D -d ""{outDir}"" ""{path}""";
+                p.StartInfo.Arguments = $@"-D -d ""{outFolder}"" ""{path}""";
                 p.StartInfo.CreateNoWindow = true;
                 try
                 {
@@ -192,32 +211,43 @@ namespace PPTVoiceSorter
                 }
                 p.WaitForExit();
 
-                progress.itemsComplete += Directory.GetFiles(outDir).Length;
+                int numClips = Directory.GetFiles(outFolder).Length;
+                progress.itemsComplete += numClips;
+
+                // We can't just copy Directory.GetFiles(outDir) into clipPaths because the
+                // former is in lexicographical order (0, 1, 10, 11, 12, ...) which is not
+                // the order we want (0, 1, 2, 3, ...).
+                for (int i = 0; i < numClips; i++)
+                {
+                    clipPaths.Add(outFolder + $@"\{i}.wav");
+                }
             }
             // Due to what I assume is the developers' oversight, destinationFolder\manzai_070101_e
             // contains 40 files when that scene only has 39 lines. The extra file, 39.wav,
             // is unused, and its content is the same as destinationFolder\manzai_070102_e\0.wav.
-            //
-            // Thanks to this file, right now destinationFolder contains 3084 files, while
-            // the transcrips only contain 3083 lines.
+            clipPaths.Remove(destinationFolder + @"\manzai_070101_e\39.wav");
 
             // Step 2: Extract transcripts.
-            List<string> mtxPartialBasenames = new List<string>();
+            List<string> mtxBasenames = new List<string>();
+            List<string> transcriptPaths = new List<string>();
+            string generalTranscriptPath;
+
             for (int i = 1; i <= 10; i++)
             {
-                mtxPartialBasenames.Add($"chapter{i:D2}");
+                string basename = $"chapter{i:D2}English";
+                mtxBasenames.Add(basename);
+                transcriptPaths.Add(destinationFolder + $@"\{basename}.json");
             }
-            mtxPartialBasenames.Add("general");
+            const string generalBasename = "generalEnglish";
+            mtxBasenames.Add(generalBasename);
+            generalTranscriptPath = destinationFolder + $@"\{generalBasename}.json";
 
-            int transcriptsExtracted = 0;
-            foreach (string mtxPartialBasename in mtxPartialBasenames)
+            progress.itemsComplete = totalClips;
+            progress.message = $"Extracting transcripts...";
+            worker.ReportProgress(0, progress);
+
+            foreach (string basename in mtxBasenames)
             {
-                string basename = mtxPartialBasename + "English";
-
-                progress.itemsComplete = totalClips + transcriptsExtracted;
-                progress.message = $"Extracting transcript from {basename}.mtx ({transcriptsExtracted} / {totalTranscriptFiles})...";
-                worker.ReportProgress(0, progress);
-
                 string inPath = gameFolder + $@"\data_steam\data\tenp\text\adventure\{basename}.mtx";
                 string outPath = destinationFolder + $@"\{basename}.json";
 
@@ -233,9 +263,35 @@ namespace PPTVoiceSorter
                 {
                     throw new Exception("An error occurred when running MtxToJson.", ex);
                 }
+                p.WaitForExit();
             }
 
-            // Step 3: Load speaker list from resources.
+            // Step 3: Load transcripts into memory, again in a very specific order.
+            List<string> lines = new List<string>();
+            Transcript generalTranscript = LoadTranscript(generalTranscriptPath);
+            lines.AddRange(generalTranscript.Entries[0]);  // Opening
+            
+            for (int act = 1; act <= 7; act++)
+            {
+                Transcript transcript = LoadTranscript(transcriptPaths[act - 1]);
+                foreach (List<string> scene in transcript.Entries)
+                {
+                    lines.AddRange(scene);
+                }
+            }
+
+            lines.AddRange(generalTranscript.Entries[1]);  // Ending
+
+            for (int act = 8; act <= 10; act++)
+            {
+                Transcript transcript = LoadTranscript(transcriptPaths[act - 1]);
+                foreach (List<string> scene in transcript.Entries)
+                {
+                    lines.AddRange(scene);
+                }
+            }
+
+            // Step 4: Load speaker list.
             string speakerJson = Properties.Resources.speakers;
         }
 
@@ -261,6 +317,29 @@ namespace PPTVoiceSorter
             }
             progressBar.Value = 0;
             startButton.Enabled = true;
+        }
+
+        private Transcript LoadTranscript(string path)
+        {
+            string jsonString = File.ReadAllText(path);
+            Transcript t = System.Text.Json.JsonSerializer.Deserialize<Transcript>(jsonString);
+            // Each scene ends with an unused line "W". Remove them.
+            foreach (List<string> scene in t.Entries)
+            {
+                scene.RemoveAt(scene.Count - 1);
+
+                // Preprocess lines to remove "\n" and "{arrow}".
+                for (int i = 0; i < scene.Count; i++)
+                {
+                    scene[i] = Preprocess(scene[i]);
+                }
+            }
+            return t;
+        }
+
+        private string Preprocess(string line)
+        {
+            return line.Replace("\n", " ").Replace("  ", " ").Replace("{arrow}", "");
         }
         #endregion
     }
