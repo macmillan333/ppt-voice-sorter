@@ -97,6 +97,8 @@ namespace PPTVoiceSorter
                 };
                 Process.Start(psi);
             }
+            // I'm not officially supporting other platforms anyway so
+            // why am I even including these clauses?
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 Process.Start("xdg-open", url);
@@ -385,7 +387,7 @@ namespace PPTVoiceSorter
             else
             {
                 progressLabel.Text = "Done.";
-                // TODO: Open destination folder
+                Process.Start("explorer", $"\"{destinationFolder}\"");
             }
             progressBar.Value = 0;
             startButton.Enabled = true;

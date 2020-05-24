@@ -3,7 +3,9 @@ I decided not to put up PPT Voice Organizer as introduced in [this video](https:
 
 Instead, I am publishing the result of my work, the speakers of all 3,083 lines spoken in Puyo Puyo Tetris, as seen in [names.json](https://github.com/macmillan333/ppt-voice-sorter/blob/master/PPTVoiceSorter/PPTVoiceSorter/Resources/names.json). I think this still violates the game's EULA, but since I'm not publishing the transcript itself or any voice clip, I think it's quite unlikely that I'll get into trouble for this.
 
-To make this name list useful to you, I wrote this tool, PPT Voice Sorter, that you are seeing here.
+To make this name list useful to you, I wrote this tool, PPT Voice Sorter, that you are seeing here. It basically only does the "Export" part of PPT Voice Organizer.
+
+BTW macmillan333 and DJ Hitori are two personas of the same person.
 # PPT Voice Sorter
 The tool that extracts all voice clips and transcripts from Puyo Puyo Tetris, and then sorts them by speaker. Only supports Windows at this time.
 
@@ -21,4 +23,4 @@ If the tool doesn't work for you:
 * I don't know unxwb or Puyo Text Editor too well, but I suggest that you unzip each of those two into their own folder, and don't touch them.
 * "Puyo Puyo Tetris" folder should be named "PuyoPuyoTetris", and should contain a "puyopuyotetris.exe". Make sure to not choose a folder above or below that.
 * It might help to completely clear out the destination folder before clicking "Start". Or just create a new folder for this.
-* If you still have an issue, click the "Issues" tab at the top of this page, create a new issue, and describe your problem in as much detail as possible.
+* If you still have an issue, click the "Issues" tab at the top of this page, create a new issue, and describe your problem in as much detail as possible. If the tool pops up a really lengthy error at you, you can hit Ctrl-C in that pop up to copy the error message, and paste it into your issue, and that would be helpful to me.

@@ -118,7 +118,7 @@
             // mtxToJsonDownloadLink
             // 
             this.mtxToJsonDownloadLink.AutoSize = true;
-            this.mtxToJsonDownloadLink.Location = new System.Drawing.Point(189, 120);
+            this.mtxToJsonDownloadLink.Location = new System.Drawing.Point(336, 119);
             this.mtxToJsonDownloadLink.Name = "mtxToJsonDownloadLink";
             this.mtxToJsonDownloadLink.Size = new System.Drawing.Size(127, 20);
             this.mtxToJsonDownloadLink.TabIndex = 6;
@@ -148,18 +148,19 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(13, 120);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(170, 20);
+            this.label3.Size = new System.Drawing.Size(317, 20);
             this.label3.TabIndex = 0;
-            this.label3.Text = "3. Locate MtxToJson.exe.";
+            this.label3.Text = "3. Locate MtxToJson.exe from Puyo Text Editor.";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(13, 173);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(426, 20);
+            this.label4.Size = new System.Drawing.Size(527, 20);
             this.label4.TabIndex = 0;
-            this.label4.Text = "4. Pick destination folder. Sorted voice clips will be stored here.";
+            this.label4.Text = "4. Pick destination folder. Sorted voice clips and transcripts will be stored her" +
+    "e.";
             // 
             // destinationFolderBox
             // 
