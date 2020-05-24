@@ -19,6 +19,7 @@ namespace PPTVoiceSorter
         {
             InitializeComponent();
 
+            progressLabel.Text = "";
             optimizeForTrainingToolTip.SetToolTip(optimizeForTrainingCheckBox,
                 "Adjust the output to be more friendly to speech synthesizers.\n" +
                 "* Any line containing sound effects, such as *thinking sounds*, will be removed.\n" +
@@ -86,31 +87,9 @@ namespace PPTVoiceSorter
 
         public static void OpenBrowser(string url)
         {
-            // Process.Start doesn't work as expected on .NET Core.
-            // https://github.com/dotnet/runtime/issues/17938
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                ProcessStartInfo psi = new ProcessStartInfo
-                {
-                    FileName = url,
-                    UseShellExecute = true
-                };
-                Process.Start(psi);
-            }
-            // I'm not officially supporting other platforms anyway so
-            // why am I even including these clauses?
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", url);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", url);
-            }
-            else
-            {
-                Process.Start(url);
-            }
+            // This doesn't work on .NET Core but thankfully we migrated away
+            // from that.
+            Process.Start(url);
         }
 
         private void startButton_Click(object sender, EventArgs e)
@@ -140,7 +119,7 @@ namespace PPTVoiceSorter
         private const int totalSpeakers = 34;
         private const int totalActionItems = totalClips
             + 1  // For extracting transcripts
-            + totalSpeakers 
+            + totalSpeakers
             + 1;  // For cleaning up
 
         private struct Progress
@@ -203,17 +182,18 @@ namespace PPTVoiceSorter
             foreach (string path in xwbPaths)
             {
                 string[] splits = path.Split('\\');
-                progress.message = $"Extracting voice clips from {splits[^1]} ({progress.itemsComplete} / {totalClips})...";
+                string basenameAndExtention = splits[splits.Length - 1];
+                progress.message = $"Extracting voice clips from {basenameAndExtention} ({progress.itemsComplete} / {totalClips})...";
                 worker.ReportProgress(0, progress);
 
-                string basename = splits[^1].Split('.')[0];
+                string basename = basenameAndExtention.Split('.')[0];
                 string outFolder = destinationFolder + $@"\{basename}";
                 Directory.CreateDirectory(outFolder);
 
                 Process p = new Process();
                 p.StartInfo.FileName = unxwbPath;
                 p.StartInfo.Arguments = $@"-D -d ""{outFolder}"" ""{path}""";
-                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 try
                 {
                     p.Start();
@@ -267,7 +247,7 @@ namespace PPTVoiceSorter
                 Process p = new Process();
                 p.StartInfo.FileName = mtxToJsonPath;
                 p.StartInfo.Arguments = $@"-o ""{outPath}"" ""{inPath}""";
-                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 try
                 {
                     p.Start();
@@ -283,7 +263,7 @@ namespace PPTVoiceSorter
             List<string> lines = new List<string>();
             Transcript generalTranscript = LoadTranscript(generalTranscriptPath);
             lines.AddRange(generalTranscript.Entries[0]);  // Opening
-            
+
             for (int act = 1; act <= 7; act++)
             {
                 Transcript transcript = LoadTranscript(transcriptPaths[act - 1]);
