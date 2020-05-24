@@ -14,7 +14,7 @@ How to use:
 1. Install a copy of Puyo Puyo Tetris on your PC.
 2. Download unxwb from [here](http://aluigi.altervista.org/papers/unxwb.zip).
 3. Download Puyo Text Editor from [here](https://github.com/nickworonekin/puyo-text-editor/releases).
-4. Download PPT Voice Sorter.
+4. Download PPT Voice Sorter from [here](https://github.com/macmillan333/ppt-voice-sorter/releases).
 5. Launch PPT Voice Sorter, provide it with whatever it asks for, and click "Start".
 6. If the tool works successfully, you will see subfolders in the destination folder you picked. Each subfolder corresponds to one character, contains all voice clips that character said, and contains one TXT file holding that character's transcript.
 
