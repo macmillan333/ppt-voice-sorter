@@ -35,7 +35,7 @@ namespace PPTVoiceSorter
         #region Event handlers
         private void gameFolderBrowseButton_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            Ookii.Dialogs.WinForms.VistaFolderBrowserDialog dialog = new Ookii.Dialogs.WinForms.VistaFolderBrowserDialog();
             dialog.SelectedPath = gameFolderBox.Text;
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
@@ -67,7 +67,7 @@ namespace PPTVoiceSorter
 
         private void destinationFolderBrowseButton_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            Ookii.Dialogs.WinForms.VistaFolderBrowserDialog dialog = new Ookii.Dialogs.WinForms.VistaFolderBrowserDialog();
             dialog.SelectedPath = destinationFolderBox.Text;
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
